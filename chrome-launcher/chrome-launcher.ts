@@ -73,7 +73,6 @@ export class Launcher {
   private pollInterval: number = 500;
   private pidFile: string;
   private startingUrl: string;
-  private userDataDir?: string;
   private outFile?: number;
   private errFile?: number;
   private chromePath?: string;
@@ -108,13 +107,20 @@ export class Launcher {
     return flags;
   }
 
+  // Wrapper function to enable easy testing.
+  makeTmpDir() {
+    return makeTmpDir();
+  }
+
+  get userDataDir() {
+    return this.opts.userDataDir || this.makeTmpDir()
+  }
+
   private prepare() {
     const platform = process.platform as SupportedPlatforms;
     if (!_SUPPORTED_PLATFORMS.has(platform)) {
       throw new Error(`Platform ${platform} is not supported`);
     }
-
-    this.userDataDir = this.opts.userDataDir || makeTmpDir();
 
     this.outFile = fs.openSync(`${this.userDataDir}/chrome-out.log`, 'a');
     this.errFile = fs.openSync(`${this.userDataDir}/chrome-err.log`, 'a');

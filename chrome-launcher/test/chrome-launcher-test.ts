@@ -18,10 +18,31 @@
 
 import {Launcher} from '../chrome-launcher';
 
+import * as assert from 'assert';
+
 const log = require('../../lighthouse-core/lib/log');
-const assert = require('assert');
 
 describe('Launcher', () => {
+  it('accepts and uses a custom path', () => {
+    log.setLevel('error');
+    const chromeInstance = new Launcher({
+      userDataDir: 'some_path'
+    });
+
+    assert.equal(chromeInstance.userDataDir, 'some_path');
+  });
+
+  it('defaults to genering a tmp dir when no data dir is passed', () => {
+    log.setLevel('error');
+    const chromeInstance = new Launcher();
+    const originalMakeTmp = chromeInstance.makeTmpDir;
+    chromeInstance.makeTmpDir = () => 'tmp_dir'
+    assert.equal(chromeInstance.userDataDir, 'tmp_dir');
+
+    // Restore the original fn.
+    chromeInstance.makeTmpDir = originalMakeTmp;
+  });
+
   it('doesn\'t fail when killed twice', () => {
     log.setLevel('error');
     const chromeInstance = new Launcher();
